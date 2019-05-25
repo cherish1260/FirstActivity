@@ -6,6 +6,7 @@
     android:gravity="center">
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!" />
@@ -60,5 +61,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="启动IntentService" />
+    <Button
+        android:id="@+id/btn_messenger"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="使用Messenger进程间通信"/>
+    <Button
+        android:id="@+id/btn_send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送消息"/>
 
 </LinearLayout>

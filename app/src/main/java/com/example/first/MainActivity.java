@@ -12,10 +12,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.RemoteException;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.example.first.activity.FirstActivity;
 import com.example.first.activity.ThirdActivity;
@@ -29,7 +33,10 @@ import com.example.second.secondapplication.IMyAidlInterface;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
-    Button btnTest, btnStart, btnStop, btnBind, btnUnbind, btnRemoteBind, btnRemoteBind2, btnStartIntentService;
+    Button btnTest, btnStart, btnStop, btnBind, btnUnbind,
+            btnRemoteBind, btnRemoteBind2, btnStartIntentService,
+            btnMessenger, btnSend;
+    TextView textView;
     private MyBinder myBinder;
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -82,6 +89,35 @@ public class MainActivity extends Activity implements View.OnClickListener {
     };
     private IMyAidlInterface binder;
     private IMyAidlInterface2 binder2;
+    private static final int MSG_SUM = 0x110;
+    private Messenger mService;
+    private boolean conn;
+    private Messenger messenger = new Messenger(new Handler() {
+        @Override
+        public void handleMessage(Message msgFromServer) {
+            Message msgToServer = Message.obtain(msgFromServer);
+            switch (msgFromServer.what) {
+                case MSG_SUM:
+                    textView.setText("from server:" + msgFromServer.arg2);
+                    break;
+
+            }
+            super.handleMessage(msgFromServer);
+        }
+    });
+
+    private ServiceConnection serviceConnection4 = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mService = new Messenger(service);
+            conn = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            conn = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +168,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private void initViews() {
+        textView = findViewById(R.id.textView);
         btnTest = findViewById(R.id.btn_test);
         btnStart = findViewById(R.id.btn_start);
         btnStop = findViewById(R.id.btn_stop);
@@ -140,6 +177,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btnRemoteBind = findViewById(R.id.btn_remote_bind);
         btnRemoteBind2 = findViewById(R.id.btn_remote_bind2);
         btnStartIntentService = findViewById(R.id.btn_start_intent_service);
+        btnSend = findViewById(R.id.btn_send);
+        btnMessenger = findViewById(R.id.btn_messenger);
         btnTest.setOnClickListener(this);
         btnStart.setOnClickListener(this);
         btnStop.setOnClickListener(this);
@@ -148,6 +187,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btnRemoteBind.setOnClickListener(this);
         btnRemoteBind2.setOnClickListener(this);
         btnStartIntentService.setOnClickListener(this);
+        btnMessenger.setOnClickListener(this);
+        btnSend.setOnClickListener(this);
     }
 
     @Override
@@ -204,8 +245,35 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.btn_start_intent_service:
                 startIntentService();
                 break;
+            case R.id.btn_messenger:
+                startMessengerService();
+                break;
+            case R.id.btn_send:
+                sendMessage();
+                break;
             default:
                 break;
         }
+    }
+
+    private void sendMessage() {
+        Message msgFromClient = Message.obtain(null, MSG_SUM, 10, 11);
+        msgFromClient.replyTo = messenger;
+        if (conn) {
+            try {
+                mService.send(msgFromClient);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void startMessengerService() {
+
+        Intent intent = new Intent("com.example.second.message");
+        intent.setPackage("com.example.second.secondapplication");
+        bindService(intent, serviceConnection4, BIND_AUTO_CREATE);
+
+
     }
 }
