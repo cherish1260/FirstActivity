@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/v_top"
+        android:layout_height="200dp"
+        android:layout_width="match_parent"
+        android:background="@color/colorAccent"
+        android:transitionName="sharedView1">
+    </View>
+
+    <View
+        android:layout_marginTop="20dp"
+        android:id="@+id/v_bottom"
+        android:layout_height="200dp"
+        android:layout_width="match_parent"
+        android:background="@color/colorPrimary"
+        android:transitionName="sharedView2">
+    </View>
+
+    <Button
+        android:id="@+id/btn_jump"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="跳转"/>
+
+</LinearLayout>
